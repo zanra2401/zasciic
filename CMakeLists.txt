@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(zassciic CXX)
+project(zasciic CXX)
 
 find_package(stb REQUIRED)
 

@@ -24,6 +24,10 @@ void CommandCenter::parseArguments() {
         } 
         else if (arg == "-inv") {
             isInverted = true;
+        } else if (arg == "-c" && i + 2 < argc) {
+          colored = true;
+          colors[0] = argv[++i];
+          colors[1] = argv[++i];
         }
     }
 }
@@ -61,12 +65,26 @@ void CommandCenter::processCommand() {
 
     // Bangun objek Asciic setelah pengolahan gambar selesai (Grayscale & Resize)
     ascii = new Asciic(img->getGrayScalePixels(), img->getWidth(), img->getHeight());
-
+    
     // Syarat 3: Jika flag -inv aktif, lakukan invert warna di sini
+    if (colored) {
+      if (colors[0] != nullptr && colors[1] != nullptr) {
+        Color_s *colors_st = ascii->colorParser(colors);
+        ascii->generateANSIIColor(colors_st);
+      } else {
+        std::cerr 
+          << "Error: Color args is not valid \n" 
+          << "Usage: -c [color1 color2] \n"
+          << "Example: -c 0,0,0 255,255,255"
+          << std::endl;
+        std::exit(-1);
+      }
+    }
+
     if (isInverted) {
-        ascii->printAscii(true);
+        ascii->printAscii(true, colored);
     } else {
-        ascii->printAscii();
+        ascii->printAscii(false, colored);
     }
 
 }

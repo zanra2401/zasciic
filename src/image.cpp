@@ -1,6 +1,5 @@
 #include "image.hpp"
 #include "stb_image.h"
-#include "exceptionC.cpp"
 #include <string>
 #include <iostream>
 #include <cstring>
@@ -11,25 +10,18 @@
 Image::Image() {}
 
 void Image::load(const std::string &path) {
-  try {
     if (!std::filesystem::exists(path)) {
-      throw NotFoundException(path);
+      std::cerr << "Error: Gambar Tidak ditemukan" << std::endl;
+      std::exit(-1);
     }
 
     pixels = stbi_load(path.c_str(), &w, &h, &c, 0);
     aspect = (double)h / (double)w;
 
     if (!pixels) {
-      throw ImageErrorException(pixels);
+      std::cerr << "Error: Image Error" << std::endl;
+      std::exit(-1);
     }
-
-    if (c != 3) {
-      throw NotSupportedException("Right Now This Program only support RGB channels");
-    }
-
-  } catch (NotFoundException e) {
-    std::cout << "Error not found: " << e.what() << std::endl;
-  }
 }
 
 void Image::debug() {
@@ -55,18 +47,29 @@ void Image::debugGrayScale() {
 }
 
 void Image::toGrayScalePixels() {
-  for(int y = 0; y < h; y++) {
-    rowPixels_t rowPixels;
-    for(int x = 0; x < w; x++) {
-      Pixel_s pixel;
-      int index = (y * w + x) * c;
-      pixel.r = pixels[index];
-      pixel.g = pixels[index + 1];
-      pixel.b = pixels[index + 2];
-      int grayScale = toGrayScale(pixel);
-      rowPixels.push_back(grayScale);
+  if (c <= 2 && c >= 1) {
+    for(int y = 0; y < h; y++) {
+      rowPixels_t rowPixels;
+      for(int x = 0; x < w; x++) {
+        int index = (y * w + x) * c;
+        rowPixels.push_back((int) (pixels[index]));
+      }
+      grayScalePixels.push_back(rowPixels);
     }
-    grayScalePixels.push_back(rowPixels);
+  } else {     
+    for(int y = 0; y < h; y++) {
+      rowPixels_t rowPixels;
+      for(int x = 0; x < w; x++) {
+        Pixel_s pixel;
+        int index = (y * w + x) * c;
+        pixel.r = pixels[index];
+        pixel.g = pixels[index + 1];
+        pixel.b = pixels[index + 2];
+        int grayScale = toGrayScale(pixel);
+        rowPixels.push_back(grayScale);
+      }
+      grayScalePixels.push_back(rowPixels);
+    }
   }
   stbi_image_free(const_cast<unsigned char*>(pixels));
 }
@@ -111,8 +114,3 @@ int Image::getWidth() const {
 int Image::getHeight() const {
   return h;
 }
-
-
-
-
-

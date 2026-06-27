@@ -17,6 +17,8 @@ class CommandCenter {
     std::string inputPath = "";
     int targetWidth = -1; // -1 artinya opsional (tidak di-resize)
     bool isInverted = false;
+    const char *colors[2] = {nullptr, nullptr};
+    bool colored = false;
 
   public:
     CommandCenter(int argc, const char** argv);

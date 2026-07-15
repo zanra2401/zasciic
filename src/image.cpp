@@ -1,6 +1,12 @@
 #include "image.hpp"
 
-Image::Image() {}
+Image::Image() : pixels(nullptr) {}
+
+Image::~Image() {
+    if (pixels) {
+        stbi_image_free(const_cast<unsigned char*>(pixels));
+    }
+}
 
 void Image::load(const std::string &path) {
     if (!std::filesystem::exists(path)) {
@@ -65,6 +71,7 @@ void Image::toGrayScalePixels() {
     }
   }
   stbi_image_free(const_cast<unsigned char*>(pixels));
+  pixels = nullptr;
 }
 
 void Image::resizeGrayScale(int newWidth, double scale) {

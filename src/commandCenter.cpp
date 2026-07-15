@@ -4,8 +4,8 @@ CommandCenter::CommandCenter(int argc, const char** argv)
     : argc(argc), argv(argv), img(nullptr), ascii(nullptr) {}
 
 CommandCenter::~CommandCenter() {
-    delete img;
     delete ascii;
+    delete img;
 }
 
 void CommandCenter::parseArguments() {
@@ -90,6 +90,7 @@ void CommandCenter::processCommand() {
       if (colors[0] != nullptr && colors[1] != nullptr) {
         Color_s *colors_st = ascii->colorParser(colors);
         ascii->generateANSIIColor(colors_st);
+        delete[] colors_st;
       } else {
         std::cerr 
           << "Error: Color args is not valid \n" 

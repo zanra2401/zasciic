@@ -1,7 +1,7 @@
 #include "ascii.hpp"
 
 Asciic::Asciic(const grayScalePixels_t &grayScalePixels_p, const int w, const int h) 
-  : grayScalePixels(grayScalePixels_p), w(w), h(h) {
+  : grayScalePixels(grayScalePixels_p), w(w), h(h), idx_hist(-1) {
   asciiChars = {"@", "%", "#", "*", "+", "=", "-", ":", ".", " "};
 }
 
@@ -79,7 +79,7 @@ std::string Asciic::getChar(int brightness, bool inverted, bool colored) {
   Color_s* color;
   int idx = floor(brightness * (asciiChars.size() - 1) / 255);
   if(inverted) {
-    idx = std::abs(static_cast<int>(idx - (asciiChars.size() - 1)));
+    idx = (asciiChars.size() - 1) - idx;
     target_char = asciiChars[idx];
     color = getColor(idx);
   } else {
@@ -128,7 +128,7 @@ Color_s* Asciic::colorParser(const char *colors[2]) {
   Color_s end;
   
   for (int i = 0; i < 2; i++) {
-    char channel[20];
+    char channel[20] = {0};
     int ic = 0;
     std::vector<int> channels;
     std::string_view sv = colors[i];

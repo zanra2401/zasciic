@@ -21,6 +21,7 @@ class Image {
 
   public:
     Image();
+    ~Image();
     void load(const std::string &path);
     void resizeGrayScale(int newWidth, double scale = 0.5);
     void toGrayScalePixels();

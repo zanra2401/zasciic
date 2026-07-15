@@ -1,8 +1,4 @@
 #include "commandCenter.hpp"
-#include <iostream>
-#include <string>
-#include "image.cpp"
-#include "ascii.cpp"
 
 CommandCenter::CommandCenter(int argc, const char** argv) 
     : argc(argc), argv(argv), img(nullptr), ascii(nullptr) {}
@@ -28,6 +24,15 @@ void CommandCenter::parseArguments() {
           colored = true;
           colors[0] = argv[++i];
           colors[1] = argv[++i];
+        } else if (arg == "-of" && i + 1 < argc) {
+          out_file_name = std::string_view(argv[++i]);
+        }else if (arg == "-s" && i + 1 < argc) {
+          scale = std::stod(argv[++i]);
+        }else if (arg == "-chars" && i + 1 < argc) {
+          asciiChars = argv[++i];
+        } else {
+          std::cerr << argv[i] << " is not recognized as a arguments";
+          std::exit(-1);
         }
     }
 }
@@ -56,15 +61,29 @@ void CommandCenter::processCommand() {
     img->load(inputPath);
     img->toGrayScalePixels();
 
+
     // Cek apakah user meminta resize opsional
     if (targetWidth != -1) {
-        img->resizeGrayScale(targetWidth); 
+        if (scale != -1) {
+          img->resizeGrayScale(targetWidth, scale);
+        } else {
+          img->resizeGrayScale(targetWidth);
+        }
     } else {
-        img->resizeGrayScale(120);
+        if (scale != -1) {
+          img->resizeGrayScale(120, scale);
+        } else {
+          img->resizeGrayScale(120);
+        }
     }
 
     // Bangun objek Asciic setelah pengolahan gambar selesai (Grayscale & Resize)
     ascii = new Asciic(img->getGrayScalePixels(), img->getWidth(), img->getHeight());
+
+    if (!asciiChars.empty()) {
+      ascii->setChars(asciiChars);
+    }
+    
     
     // Syarat 3: Jika flag -inv aktif, lakukan invert warna di sini
     if (colored) {
@@ -82,9 +101,9 @@ void CommandCenter::processCommand() {
     }
 
     if (isInverted) {
-        ascii->printAscii(true, colored);
+        ascii->printAscii(true, colored, out_file_name);
     } else {
-        ascii->printAscii(false, colored);
+        ascii->printAscii(false, colored, out_file_name);
     }
 
 }

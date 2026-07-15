@@ -1,23 +1,67 @@
 #include "ascii.hpp"
-#include "typeData.hpp"
-#include <cmath>
-#include <string_view>
-#include <cstring>
-#include <string>
 
 Asciic::Asciic(const grayScalePixels_t &grayScalePixels_p, const int w, const int h) 
   : grayScalePixels(grayScalePixels_p), w(w), h(h) {
-  asciiChars = {'@', '%', '#', '*', '+', '=', '-', ':', '.', ' '};
+  asciiChars = {"@", "%", "#", "*", "+", "=", "-", ":", ".", " "};
 }
 
-void Asciic::printAscii(bool inverted, bool colored) {  
-  for(int y = 0; y < h; y++) {
-    for(int x = 0; x < w; x++) {
-      std::cout << getChar(grayScalePixels[y][x], inverted, colored);
+void Asciic::setChars(const std::string chars) {
+    asciiChars.clear(); // Lebih ringkas daripada .erase(begin, end)
+
+    // Melakukan parsing string UTF-8 secara manual per karakter
+    for (size_t i = 0; i < chars.length(); ) {
+        size_t len = 1;
+        unsigned char c = chars[i];
+        
+        // Menentukan panjang byte karakter UTF-8 berdasarkan leading bits
+        if (c >= 0xf0) len = 4;
+        else if (c >= 0xe0) len = 3;
+        else if (c >= 0xc0) len = 2;
+        
+        if (i + len <= chars.length()) {
+            asciiChars.push_back(chars.substr(i, len));
+        }
+        i += len;
     }
-    std::cout << std::endl;
-  }
 }
+
+void Asciic::printAscii(bool inverted, bool colored, std::string_view file_name) {
+    std::stringstream ascii_string;
+    bool save_to_file = !file_name.empty();
+
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            std::string string_to_write = getChar(grayScalePixels[y][x], inverted, colored);
+            
+            std::cout << string_to_write;
+            
+            if (save_to_file) {
+                ascii_string << string_to_write;
+            }
+        }
+        std::cout << std::endl;
+        if (save_to_file) {
+            ascii_string << std::endl;
+        }
+    }
+
+    if (save_to_file) {
+        ascii_string << "\033[0m";
+        std::ofstream ofs;
+        writeToFile(ofs, file_name, ascii_string.str());
+        ofs.close();
+    }
+}
+
+// Perbaikan nama class (Asciic) dan penambahan referensi (&)
+void Asciic::writeToFile(std::ofstream& ofs, std::string_view file_name, std::string string_to_write) {
+    // Konversi string_view ke std::string agar bisa dibaca oleh .open()
+    ofs.open(std::string(file_name), std::ios::out | std::ios::trunc);
+    if (ofs.is_open()) {
+        ofs << string_to_write;
+    }
+}
+
 
 void Asciic::generateANSIIColor(Color_s *colors) {
   int sizeChars = asciiChars.size();
@@ -31,32 +75,34 @@ void Asciic::generateANSIIColor(Color_s *colors) {
 
 
 std::string Asciic::getChar(int brightness, bool inverted, bool colored) {
-  char target_char;
+  std::string target_char;
   Color_s* color;
   int idx = floor(brightness * (asciiChars.size() - 1) / 255);
   if(inverted) {
-    int inv_idx = std::abs(static_cast<int>(idx - (asciiChars.size() - 1)));
-    target_char = asciiChars[inv_idx];
-    color = getColor(inv_idx);
+    idx = std::abs(static_cast<int>(idx - (asciiChars.size() - 1)));
+    target_char = asciiChars[idx];
+    color = getColor(idx);
   } else {
     target_char = asciiChars[idx];
     color = getColor(idx);
-  }
+  } 
 
   if (colored) {
     std::stringstream ss;
         
     // Gabungkan ANSI Code + RGB + Karakter + ANSI Reset
     // Format: \033[38;2;R;G;Bm[KARAKTER]\033[0m
-    ss << "\033[38;2;" 
-       << color->r << ";" 
-       << color->g << ";" 
-       << color->b << "m" 
-       << target_char 
-       << "\033[0m";
+    if (idx_hist != idx && target_char != " ") {
+      ss << "\033[38;2;" 
+         << color->r << ";" 
+         << color->g << ";" 
+         << color->b << "m";
+      idx_hist = idx;
+    }
+    ss << target_char;
     return ss.str();
   } else {
-    return std::string(1, target_char);
+    return target_char;
   }
 }
 
@@ -70,9 +116,12 @@ Color_s Asciic::lerp(Color_s &color1, Color_s &color2, float t) {
   return newColor;
 }
 
+
 Color_s* Asciic::getColor(int index) {
   return &colors_map[index];
 }
+
+
 
 Color_s* Asciic::colorParser(const char *colors[2]) {
   Color_s start;

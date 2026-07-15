@@ -1,5 +1,5 @@
 #include <vector>
-#include "commandCenter.cpp"
+#include "commandCenter.hpp"
 
 int main(int argc, const char *argv[]) {
   CommandCenter commandCenter = CommandCenter(argc, argv);

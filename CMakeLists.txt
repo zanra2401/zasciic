@@ -8,6 +8,9 @@ add_executable(
   ${PROJECT_NAME}
   src/main.cpp
   src/stb.cpp
+  src/ascii.cpp
+  src/commandCenter.cpp
+  src/image.cpp
 )
 
 target_link_libraries(

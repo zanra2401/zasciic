@@ -1,11 +1,4 @@
 #include "image.hpp"
-#include "stb_image.h"
-#include <string>
-#include <iostream>
-#include <cstring>
-#include <filesystem>
-#include <exception>
-#include "typeData.hpp"
 
 Image::Image() {}
 
@@ -74,8 +67,8 @@ void Image::toGrayScalePixels() {
   stbi_image_free(const_cast<unsigned char*>(pixels));
 }
 
-void Image::resizeGrayScale(int newWidth) {
-  int newHeight = (int)(aspect * newWidth * 0.5);
+void Image::resizeGrayScale(int newWidth, double scale) {
+  int newHeight = (int)(aspect * newWidth * scale);
   double widthScaleFactor =  (double)newWidth / w;
   double heightScaleFactor = (double)newHeight / h;
 

@@ -3,3 +3,5 @@ v1.0.1: change program name
 v1.1.0: change error from exception to std::cerr
       : support all channels types
       : add color feature
+      : add scale feature
+      : add chars feature

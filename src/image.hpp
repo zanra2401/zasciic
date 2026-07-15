@@ -2,6 +2,12 @@
 #include <string>
 #include <vector>
 #include "typeData.hpp"
+#include "stb_image.h"
+#include <string>
+#include <iostream>
+#include <cstring>
+#include <filesystem>
+#include <exception>
 
 class Image {
   private:    
@@ -16,7 +22,7 @@ class Image {
   public:
     Image();
     void load(const std::string &path);
-    void resizeGrayScale(int newWidth);
+    void resizeGrayScale(int newWidth, double scale = 0.5);
     void toGrayScalePixels();
     void debug();
     void debugGrayScale();

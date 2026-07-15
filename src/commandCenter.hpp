@@ -2,6 +2,8 @@
 #include "image.hpp"    // Gunakan .hpp, bukan .cpp agar tidak terjadi double-declaration
 #include "ascii.hpp"
 #include "typeData.hpp"
+#include <iostream>
+#include <string>
 
 class CommandCenter {
   private:
@@ -16,9 +18,12 @@ class CommandCenter {
     // Variabel untuk menyimpan konfigurasi dari argumen user
     std::string inputPath = "";
     int targetWidth = -1; // -1 artinya opsional (tidak di-resize)
+    double scale = -1;
     bool isInverted = false;
     const char *colors[2] = {nullptr, nullptr};
     bool colored = false;
+    std::string_view out_file_name = "";
+    std::string asciiChars;
 
   public:
     CommandCenter(int argc, const char** argv);

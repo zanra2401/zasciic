@@ -31,4 +31,5 @@ class CommandCenter {
     
     void parseArguments(); // Fungsi baru khusus untuk membaca input acak
     void processCommand();
+    void printHelp();
 };

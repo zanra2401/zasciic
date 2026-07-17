@@ -8,7 +8,25 @@ CommandCenter::~CommandCenter() {
     delete img;
 }
 
+void CommandCenter::printHelp() {
+    std::cout << "Usage: zasciic [OPTIONS]\n"
+              << "Options:\n"
+              << "  -i [image_path]        Input image path (Required)\n"
+              << "  -w [width]             Target width for resizing\n"
+              << "  -s [scale]             Scale factor for resizing\n"
+              << "  -inv                   Invert ASCII colors\n"
+              << "  -c [color1] [color2]   Apply color gradient (e.g. 0,0,0 255,255,255)\n"
+              << "  -of [output_file]      Save output to a file\n"
+              << "  -chars [characters]    Custom ASCII characters to use\n"
+              << "  -h, --help             Show this help message\n";
+    std::exit(0);
+}
+
 void CommandCenter::parseArguments() {
+    if (argc <= 1) {
+        printHelp();
+    }
+
     for (int i = 1; i < argc; i++) {
         std::string arg = argv[i];
 
@@ -30,8 +48,10 @@ void CommandCenter::parseArguments() {
           scale = std::stod(argv[++i]);
         }else if (arg == "-chars" && i + 1 < argc) {
           asciiChars = argv[++i];
+        } else if (arg == "-h" || arg == "--help") {
+          printHelp();
         } else {
-          std::cerr << argv[i] << " is not recognized as a arguments";
+          std::cerr << argv[i] << " is not recognized as a arguments. Use -h or --help for usage.\n";
           std::exit(-1);
         }
     }

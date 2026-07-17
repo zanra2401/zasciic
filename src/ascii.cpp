@@ -128,29 +128,22 @@ Color_s* Asciic::colorParser(const char *colors[2]) {
   Color_s end;
   
   for (int i = 0; i < 2; i++) {
-    char channel[20] = {0};
-    int ic = 0;
     std::vector<int> channels;
-    std::string_view sv = colors[i];
-    for (const char &c : sv) {
-        if (c != ',' || &c == &sv.back()) {
-          channel[ic] = c;
-          ic += 1;
-          if (&c == &sv.back()) {
-            ic = 0;
-            channels.push_back(std::stoi(channel));
-            std::memset(channel, 0, sizeof(channel));
-          }
-        } else if (c == ',') {
-          ic = 0;
-          channels.push_back(std::stoi(channel));
-          std::memset(channel, 0, sizeof(channel));
+    std::string color_str(colors[i]);
+    std::stringstream ss(color_str);
+    std::string token;
+    
+    while (std::getline(ss, token, ',')) {
+        try {
+            channels.push_back(std::stoi(token));
+        } catch (...) {
+            std::cerr << "Error: Invalid color format '" << token << "' in '" << color_str << "'\n";
+            std::exit(-1);
         }
-
     }
+    
     if (channels.size() != 3) {
-      std::cerr << "Error argument -c";
-      std::cout << channels.size() << std::endl;
+      std::cerr << "Error argument -c. Expected 3 channels (R,G,B), but got " << channels.size() << " from '" << color_str << "'\n";
       std::exit(-1);
     }
     if (i == 0) {

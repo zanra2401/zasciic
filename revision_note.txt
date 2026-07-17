@@ -5,3 +5,5 @@ v1.1.0: change error from exception to std::cerr
       : add color feature
       : add scale feature
       : add chars feature
+      : add help center
+      : fix vulnerable code
